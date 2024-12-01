@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service // Marks this class as a Spring service for dependency injection.
 public class CanvasAPIService {
@@ -165,4 +167,120 @@ public class CanvasAPIService {
             throw new RuntimeException("Error fetching active calendar events", e);
         }
     }
+
+        /**
+     * Retrieves grades split by each course.
+     *
+     * @return A Map where the key is the course title, and the value is a list of assignments and their grades.
+     */
+/**
+ * Retrieves grades split by each course, including both assignments and quizzes.
+ *
+ * @return A Map where the key is the course title, and the value is a list of assignments, quizzes, and their grades.
+ */
+public Map<String, List<String>> getCourseGrades() {
+    JsonNode courses = getCourses(); // Fetch the list of courses.
+    Map<String, List<String>> courseGrades = new HashMap<>(); // Stores grades per course.
+
+    if (courses.isArray()) {
+        for (JsonNode course : courses) {
+            // Extract course details.
+            String courseId = course.path("id").asText();
+            String courseTitle = course.path("name").asText("Unknown Course");
+
+            // Initialize a list to hold assignment and quiz grades for this course.
+            List<String> gradesList = new ArrayList<>();
+
+            // Fetch assignments data for this course.
+            fetchAssignments(courseId, gradesList);
+
+            // Fetch quizzes data for this course.
+            fetchQuizzes(courseId, gradesList);
+
+            // Add this course's grades (assignments and quizzes) to the courseGrades map.
+            courseGrades.put(courseTitle, gradesList);
+        }
+    }
+    return courseGrades; // Returns the map of grades split by course.
+}
+
+/**
+ * Fetch assignments for a specific course and add their grades to the list.
+ */
+private void fetchAssignments(String courseId, List<String> gradesList) {
+    String assignmentsUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/assignments")
+        .queryParam("access_token", CanvasAPIkey)
+        .toUriString();
+
+    try {
+        String response = restTemplate.getForObject(assignmentsUrl, String.class);
+        JsonNode assignments = objectMapper.readTree(response);
+
+        if (assignments.isArray()) {
+            for (JsonNode assignment : assignments) {
+                String name = assignment.path("name").asText("No Name");
+                String pointsPossible = assignment.path("points_possible").asText("0");
+                String assignmentId = assignment.path("id").asText();
+
+                // Fetch submission for assignment
+                String submissionUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/self")
+                    .queryParam("access_token", CanvasAPIkey)
+                    .toUriString();
+
+                try {
+                    String submissionResponse = restTemplate.getForObject(submissionUrl, String.class);
+                    JsonNode submission = objectMapper.readTree(submissionResponse);
+                    String pointsEarned = submission.path("score").asText("Not Available");
+
+                    // Add assignment grade to the list
+                    gradesList.add("Assignment: " + name + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
+                } catch (Exception e) {
+                    gradesList.add("Assignment: " + name + ", Points Earned: Not Available, Total Points: " + pointsPossible);
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("Failed to fetch assignments for course ID: " + courseId);
+    }
+}
+
+/**
+ * Fetch quizzes for a specific course and add their grades to the list.
+ */
+private void fetchQuizzes(String courseId, List<String> gradesList) {
+    String quizzesUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/quizzes")
+        .queryParam("access_token", CanvasAPIkey)
+        .toUriString();
+
+    try {
+        String response = restTemplate.getForObject(quizzesUrl, String.class);
+        JsonNode quizzes = objectMapper.readTree(response);
+
+        if (quizzes.isArray()) {
+            for (JsonNode quiz : quizzes) {
+                String title = quiz.path("title").asText("No Title");
+                String pointsPossible = quiz.path("points_possible").asText("0");
+                String quizId = quiz.path("id").asText();
+
+                // Fetch submission for quiz
+                String submissionUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/quizzes/" + quizId + "/submissions/self")
+                    .queryParam("access_token", CanvasAPIkey)
+                    .toUriString();
+
+                try {
+                    String submissionResponse = restTemplate.getForObject(submissionUrl, String.class);
+                    JsonNode submission = objectMapper.readTree(submissionResponse);
+                    String pointsEarned = submission.path("score").asText("Not Available");
+
+                    // Add quiz grade to the list
+                    gradesList.add("Quiz: " + title + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
+                } catch (Exception e) {
+                    gradesList.add("Quiz: " + title + ", Points Earned: Not Available, Total Points: " + pointsPossible);
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("Failed to fetch quizzes for course ID: " + courseId);
+    }
+  }
 }
