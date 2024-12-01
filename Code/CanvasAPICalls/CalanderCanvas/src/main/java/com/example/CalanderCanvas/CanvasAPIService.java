@@ -63,66 +63,24 @@ public class CanvasAPIService {
      *
      * @return A list of strings describing grades for each assignment.
      */
-    public List<String> getGrades() {
-        // Fetches the list of courses using the getCourses method.
-        JsonNode courses = getCourses();
-        List<String> grades = new ArrayList<>(); // Stores grade details for each assignment.
+public List<String> getGrades() {
+    // Fetches the list of courses using the getCourses method.
+    JsonNode courses = getCourses();
+    List<String> grades = new ArrayList<>(); // Stores grade details for assignments and quizzes.
 
-        // Ensures that the response is an array before iterating.
-        if (courses.isArray()) {
-            for (JsonNode course : courses) {
-                // Extracts the course ID from the JSON response.
-                String courseId = course.path("id").asText();
-
-                // Builds the URL to fetch assignments for the current course.
-                String assignmentsUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/assignments")
-                    .queryParam("access_token", CanvasAPIkey)
-                    .toUriString();
-
-                try {
-                    // Sends a GET request to fetch assignments for the course.
-                    String response = restTemplate.getForObject(assignmentsUrl, String.class);
-
-                    // Parses the JSON response for assignments.
-                    JsonNode assignments = objectMapper.readTree(response);
-
-                    // Iterates over each assignment in the assignments array.
-                    if (assignments.isArray()) {
-                        for (JsonNode assignment : assignments) {
-                            // Extracts assignment details.
-                            String name = assignment.path("name").asText(); // Assignment name.
-                            String pointsPossible = assignment.path("points_possible").asText(); // Maximum points.
-
-                            // Builds the URL to fetch the user's submission for the assignment.
-                            String assignmentId = assignment.path("id").asText();
-                            String submissionUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/self")
-                                .queryParam("access_token", CanvasAPIkey)
-                                .toUriString();
-
-                            try {
-                                // Sends a GET request to fetch the user's submission.
-                                String submissionResponse = restTemplate.getForObject(submissionUrl, String.class);
-
-                                // Parses the submission JSON to extract the score.
-                                JsonNode submission = objectMapper.readTree(submissionResponse);
-                                String pointsEarned = submission.path("score").asText("Not Available");
-
-                                // Adds the grade details to the list.
-                                grades.add("Assignment: " + name + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
-                            } catch (Exception e) {
-                                // Handles cases where the submission data is unavailable or invalid.
-                                grades.add("Assignment: " + name + ", Points Earned: Not Available, Total Points: " + pointsPossible);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    // Logs an error if fetching assignments fails for a course.
-                    System.err.println("Failed to fetch assignments for course ID: " + courseId);
-                }
-            }
+    // Ensures that the response is an array before iterating.
+    if (courses.isArray()) {
+        for (JsonNode course : courses) {
+            // Extracts the course ID from the JSON response.
+            String courseId = course.path("id").asText();
+            
+            // Fetch assignment and quiz grades for the current course using helper functions
+            fetchAssignments(courseId, grades);
+            fetchQuizzes(courseId, grades);
         }
-        return grades; // Returns the list of grades.
     }
+    return grades; // Returns the list of grades.
+}
 
     /**
      * Retrieves all active calendar events across all courses.
