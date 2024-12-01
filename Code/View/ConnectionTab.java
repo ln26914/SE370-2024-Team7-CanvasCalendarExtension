@@ -1,4 +1,4 @@
-import javax.swing
+import javax.swing;
 
 public class ConnectionTab implements ExtensionTab {
     // A special extension tab to connect the user's canvas account to the extension.

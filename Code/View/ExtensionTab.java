@@ -1,4 +1,4 @@
-import javax.swing
+import javax.swing;
 
 public class ExtensionTab {
     // Implements a browser extension tab
