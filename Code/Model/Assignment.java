@@ -45,9 +45,9 @@ public class Assignment {
         outputString += String.format("Assignment Points: %d \n", this.points);
 
         // Completion?
-        outputString += String.format("Completed? %b", this.completion)
+        outputString += String.format("Completed? %b", this.completion);
 
-        return outputString
+        return outputString;
     }
     //toString
     public String toString() {
