@@ -179,6 +179,7 @@ private void fetchAssignments(String courseId, List<String> gradesList) {
                 String name = assignment.path("name").asText("No Name");
                 String pointsPossible = assignment.path("points_possible").asText("0");
                 String assignmentId = assignment.path("id").asText();
+                String dueDate = assignment.path("due_at").asText("No Due Date");
 
                 // Fetch submission for assignment
                 String submissionUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/self")
@@ -190,10 +191,10 @@ private void fetchAssignments(String courseId, List<String> gradesList) {
                     JsonNode submission = objectMapper.readTree(submissionResponse);
                     String pointsEarned = submission.path("score").asText("Not Available");
 
-                    // Add assignment grade to the list
-                    gradesList.add("Assignment: " + name + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
+                    // Add assignment grade and due date to the list
+                    gradesList.add("Assignment: " + name + ", Due Date: " + dueDate + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
                 } catch (Exception e) {
-                    gradesList.add("Assignment: " + name + ", Points Earned: Not Available, Total Points: " + pointsPossible);
+                    gradesList.add("Assignment: " + name + ", Due Date: " + dueDate + ", Points Earned: Not Available, Total Points: " + pointsPossible);
                 }
             }
         }
@@ -219,6 +220,7 @@ private void fetchQuizzes(String courseId, List<String> gradesList) {
                 String title = quiz.path("title").asText("No Title");
                 String pointsPossible = quiz.path("points_possible").asText("0");
                 String quizId = quiz.path("id").asText();
+                String dueDate = quiz.path("due_at").asText("No Due Date");
 
                 // Fetch submission for quiz
                 String submissionUrl = UriComponentsBuilder.fromHttpUrl(canvasApiURL + "/api/v1/courses/" + courseId + "/quizzes/" + quizId + "/submissions/self")
@@ -230,15 +232,15 @@ private void fetchQuizzes(String courseId, List<String> gradesList) {
                     JsonNode submission = objectMapper.readTree(submissionResponse);
                     String pointsEarned = submission.path("score").asText("Not Available");
 
-                    // Add quiz grade to the list
-                    gradesList.add("Quiz: " + title + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
+                    // Add quiz grade and due date to the list
+                    gradesList.add("Quiz: " + title + ", Due Date: " + dueDate + ", Points Earned: " + pointsEarned + ", Total Points: " + pointsPossible);
                 } catch (Exception e) {
-                    gradesList.add("Quiz: " + title + ", Points Earned: Not Available, Total Points: " + pointsPossible);
+                    gradesList.add("Quiz: " + title + ", Due Date: " + dueDate + ", Points Earned: Not Available, Total Points: " + pointsPossible);
                 }
             }
         }
     } catch (Exception e) {
         System.err.println("Failed to fetch quizzes for course ID: " + courseId);
     }
-  }
+}
 }
