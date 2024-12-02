@@ -17,7 +17,7 @@ function facilitateLogin() {
         //Sends the API key to the backend for validation
         fetch('/api/login', {
             method: 'POST', 
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'text/plain'},
             body: apiKey
         })
         .then(response => {
@@ -34,4 +34,9 @@ function facilitateLogin() {
     } else  {
     alert('No API key entered');
     }
+}
+
+//Navigate to Calendar page
+function goToCalendar() {
+    window.location.href = '/calendar.html'; //this redirects to the calendar page
 }
