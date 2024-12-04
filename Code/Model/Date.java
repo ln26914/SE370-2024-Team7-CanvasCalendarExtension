@@ -1,7 +1,22 @@
-public class Date {
+/**
+ * For the love of all that is good, make sure that this file, Assignment.java, and cache.dat are in the same folder.
+ * 
+ * The Assignment class has a member of type Date. To make things easier, keep this file and Assignment.java together to minimize file path shenanigans.
+ * 
+ */
+
+import java.util.Scanner;
+import java.io.*;
+
+public class Date implements Serializable {
+
+    // Data Members
     private int day;
     private int month;
     private int year;
+
+    // Serialize Utilities
+    private static final long serialVersionUID = 1L;
 
     //Constructors
     //Main Constructor
@@ -15,6 +30,12 @@ public class Date {
         this.day = 1;
         this.month = 1;
         this.year = 2000;
+    }
+    // Copy Constructor
+    public Date(Date cpy) {
+        this.day = cpy.getDay();
+        this.month = cpy.getMonth();
+        this.year = cpy.getYear();
     }
     
     //toString()

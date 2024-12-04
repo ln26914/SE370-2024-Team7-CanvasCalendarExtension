@@ -1,7 +1,15 @@
+/**
+ * For the love of all that is good, make sure that this file, Date.java, and cache.dat are in the same folder.
+ * 
+ * The code I've written doesn't navigate file paths to get to either of the above files, 
+ * so it would cause some strange-looking errors if this file was separated from the others.
+ * 
+ */
+
 import java.util.Scanner;
 import java.io.*;
 
-public class Assignment {
+public class Assignment implements Serializable {
     
     // Data Members
     String assignment_name;
@@ -11,6 +19,8 @@ public class Assignment {
     double class_points;
     boolean completion;
 
+    // Serialize Utilities
+    private static final long serialVersionUID = 1L;
     // Constructors
     // Constructor for Assignment
     public Assignment(String assignment_name, String canvas_class, Date due_date, double grade_weight, double class_points, boolean completion) {
@@ -29,6 +39,46 @@ public class Assignment {
         this.grade_weight = 0.0;
         this.class_points = 0.0;
         this.completion = false;
+    }
+    
+    // Copy Constructor
+    public Assignment(Assignment cpy) {
+        this.assignment_name = cpy.getName();
+        this.canvas_class = cpy.getCourse();
+        this.due_date = cpy.getDueDate();
+        this.grade_weight = cpy.getWeight();
+        this.class_points = cpy.getPoints();
+        this.completion = cpy.isCompleted();
+    }
+
+    // Constructor from File. Deserialization.
+    public Assignment(String filepath) throws IOException {
+        /**
+         * Constructor from file.
+         * 
+         * Loads assignment objects from the specified file path.
+         * 
+         * For best results, use this file path to access assignment data:
+         * "Code/Model/cache.dat"
+         */
+        
+        // Establish File Streams and copy data
+        try {
+            FileInputStream fstream = new FileInputStream(filename);
+            ObjectInputStream inputFile = new ObjectInputStream(fstream);
+            
+            System.out.println("File Found: " + filename);
+
+            Assignment cpy = (Assignment) inputFile.readObject(); // Read the object from file
+            
+            // Copy data from file into the new object
+            this = new Assignment(cpy)
+        
+        } catch (IOException e) {
+            // If unable to read from the file, use the default constructor.
+            System.out.println("Error when reading file " + filepath);
+            this = new Assignment();
+        }
     }
 
     //toBigString()
@@ -97,6 +147,30 @@ public class Assignment {
     }
     public void setCompletion(boolean newState) {
         this.completion = newState;
+    }
+
+    // Save with Serialization
+    public void save() throws IOEXception { // Saves the data to the file /Code/Model/cache.dat
+    /**
+     * Save
+     * 
+     * Save this assignment to the file "cache.dat", which is located in the folder Code/Model
+     */
+        
+        // Establish File Streams
+        FileOutputStream fstream = new FileOutputStream("cache.dat");
+        ObjectOutputStream outputFile = new ObjectOutputStream(fstream);
+
+        // Try to Serialize this object's data
+        try {
+            outputFile.writeObject(this);
+            outputFile.flush();
+            outputFile.close();
+        } catch (IOException e) {
+            System.out.println("Unable to write to file.")
+        } finally {
+            outputFile.close();
+        }
     }
 
 }
