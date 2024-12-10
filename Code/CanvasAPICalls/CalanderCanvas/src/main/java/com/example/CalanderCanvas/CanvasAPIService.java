@@ -126,11 +126,6 @@ public List<String> getGrades() {
         }
     }
 
-        /**
-     * Retrieves grades split by each course.
-     *
-     * @return A Map where the key is the course title, and the value is a list of assignments and their grades.
-     */
 /**
  * Retrieves grades split by each course, including both assignments and quizzes.
  *
