@@ -126,6 +126,11 @@ public List<String> getGrades() {
         }
     }
 
+        /**
+     * Retrieves grades split by each course.
+     *
+     * @return A Map where the key is the course title, and the value is a list of assignments and their grades.
+     */
 /**
  * Retrieves grades split by each course, including both assignments and quizzes.
  *
@@ -156,7 +161,25 @@ public Map<String, List<String>> getCourseGrades() {
     }
     return courseGrades; // Returns the map of grades split by course.
 }
+    /**
+     * New method to fetch all assignments (without grade info) from all courses.
+     * Returns a list of strings in the format:
+     * "Assignment: {name}, Due Date: {YYYY-MM-DDTHH:MM:SSZ}"
+     */
+    public List<String> getAllCourseAssignments() {
+        JsonNode courses = getCourses();
+        List<String> allAssignments = new ArrayList<>();
 
+        if (courses.isArray()) {
+            for (JsonNode course : courses) {
+                String courseId = course.path("id").asText();
+                fetchAssignments(courseId, allAssignments);
+            }
+        }
+        return allAssignments;
+    }
+
+ 
 /**
  * Fetch assignments for a specific course and add their grades to the list.
  */

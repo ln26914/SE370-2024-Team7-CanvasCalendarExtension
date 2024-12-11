@@ -31,15 +31,20 @@ public class CanvasController {
     @GetMapping("/grades")
     public List<String> getGrades() {
         return canvasService.getGrades();
-}
+    }
 
     @GetMapping("/active-events")
     public List<String> getActiveCalendarEvents() {
         return canvasService.getActiveCalendarEvents();
-}
+    }
 
-    @GetMapping("/course-grades") 
+    @GetMapping("/course-grades")
     public Map<String, List<String>> getCourseGrades() {
         return canvasService.getCourseGrades(); 
+    }
+
+    @GetMapping("/course-assignments")
+    public List<String> getAllCourseAssignments() {
+        return canvasService.getAllCourseAssignments();
     }
 }
