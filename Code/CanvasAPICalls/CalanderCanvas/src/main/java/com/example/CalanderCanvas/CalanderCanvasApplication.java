@@ -77,7 +77,7 @@ public class CalanderCanvasApplication {
             JOptionPane.QUESTION_MESSAGE);
 
         // If user cancels or provides no API key, exit the application.
-        if (userApiKey == null || userApiKey.trim().isEmpty()) {
+        if (userApiKey == null || userApiKey.trim().isEmpty()|| userApiKey.trim().length() < 70) {
             JOptionPane.showMessageDialog(null, 
                 "No API key entered. Exiting application.", 
                 "Error", 
