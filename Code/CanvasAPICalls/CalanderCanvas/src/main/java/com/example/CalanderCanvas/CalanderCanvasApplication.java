@@ -67,9 +67,6 @@ public class CalanderCanvasApplication {
     public static void main(String[] args) {
         System.out.println("Headless mode: " + GraphicsEnvironment.isHeadless());
 
-        // Start the Spring application
-        SpringApplication.run(CalanderCanvasApplication.class, args);
-
         // Prompt the user for the Canvas API key once before starting the Spring context.
         String userApiKey = JOptionPane.showInputDialog(null, 
             "Please enter your Canvas API key:", 
@@ -77,7 +74,7 @@ public class CalanderCanvasApplication {
             JOptionPane.QUESTION_MESSAGE);
 
         // If user cancels or provides no API key, exit the application.
-        if (userApiKey == null || userApiKey.trim().isEmpty()|| userApiKey.trim().length() < 70) {
+        if (userApiKey == null || userApiKey.trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, 
                 "No API key entered. Exiting application.", 
                 "Error", 
@@ -87,6 +84,9 @@ public class CalanderCanvasApplication {
 
         // Set the API key as a system property so that @Value("${api.key}") in CanvasAPIService can use it.
         System.setProperty("api.key", userApiKey.trim());
+
+        // Start the Spring application
+        SpringApplication.run(CalanderCanvasApplication.class, args);
 
         // After Spring Boot context is initialized, create the main UI panel on the Event Dispatch Thread.
         SwingUtilities.invokeLater(() -> {
