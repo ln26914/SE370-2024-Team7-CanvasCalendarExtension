@@ -62,35 +62,60 @@ public class CalanderCanvasApplication {
     private static JButton nextButton;           // Button to go to the next month
 
     // Maximum width in pixels for the assignment name text area, to wrap long names
-    private static final int MAX_NAME_WIDTH_PX = 200;
+    private static final int MAX_NAME_WIDTH_PX = 100;
 
     public static void main(String[] args) {
         System.out.println("Headless mode: " + GraphicsEnvironment.isHeadless());
 
-        // Prompt the user for the Canvas API key BEFORE starting Spring
-        String apiKey = System.getProperty("api.key");
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            String userApiKey = JOptionPane.showInputDialog(
+    // Prompt the user for the Canvas API key BEFORE starting Spring
+    String apiKey = System.getProperty("api.key");
+    if (apiKey == null || apiKey.trim().isEmpty()) {
+        int maxAttempts = 3;
+        String userApiKey = null;
+        boolean validKeyEntered = false;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            userApiKey = JOptionPane.showInputDialog(
                     null,
                     "Please enter your Canvas API key:",
                     "API Key Required",
                     JOptionPane.QUESTION_MESSAGE
             );
 
-            // If user cancels or provides no API key, exit the application.
-            if (userApiKey == null || userApiKey.trim().isEmpty() || userApiKey.trim().length() < 70) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "No API key entered. Exiting application.",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
-                System.exit(1);
+            // Validate the user input:
+            // - Not null
+            // - Not empty
+            // - At least 70 characters long (or any other length check you require)
+            if (userApiKey == null || userApiKey.trim().isEmpty() || userApiKey.trim().length() != 70) {
+                if (attempt < maxAttempts) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Invalid API key format. Please try again.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Invalid API key format after three attempts. Exiting application.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    System.exit(1);
+                }
+            } else {
+                // Valid API key entered
+                System.setProperty("api.key", userApiKey.trim());
+                validKeyEntered = true;
+                break;
             }
-
-            // Set the API key as a system property so that @Value("${api.key}") in CanvasAPIService can use it.
-            System.setProperty("api.key", userApiKey.trim());
         }
+
+        // If after all attempts no valid key was entered, exit
+        if (!validKeyEntered) {
+            System.exit(1);
+        }
+    }
 
         // Now that the API key is set, run the Spring application
         SpringApplication.run(CalanderCanvasApplication.class, args);
@@ -100,7 +125,6 @@ public class CalanderCanvasApplication {
             createMainPanel();
         });
     }
-
 
     /**
      * createMainPanel():
